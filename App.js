@@ -57,23 +57,24 @@ function BottomTabs() {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: "#007AFF",
-        tabBarInactiveTintColor: "#999",
+        tabBarActiveTintColor: "#FF6B35", // Orange
+        tabBarInactiveTintColor: "#666", // Grey
         tabBarStyle: {
           paddingBottom: 5,
           paddingTop: 5,
           height: 60,
           borderTopWidth: 1,
-          borderTopColor: "#E0E0E0",
+          borderTopColor: "#2a2a2a", // Dark grey
+          backgroundColor: "#1a1a1a", // Black
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: "600",
         },
         headerStyle: {
-          backgroundColor: "#007AFF",
+          backgroundColor: "#1a1a1a", // Black
         },
-        headerTintColor: "#fff",
+        headerTintColor: "#FF6B35", // Orange
         headerTitleStyle: {
           fontWeight: "700",
         },

@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: "#007AFF",
+    backgroundColor: "#FF6B35", // Orange
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     color: "#999",
   },
   walletCard: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#1a1a1a", // Black
     borderRadius: 16,
     padding: 24,
     marginBottom: 16,
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   topUpButtonText: {
-    color: "#007AFF",
+    color: "#FF6B35", // Orange
     fontSize: 16,
     fontWeight: "600",
   },
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#007AFF",
+    color: "#FF6B35", // Orange
     marginBottom: 4,
   },
   statLabel: {

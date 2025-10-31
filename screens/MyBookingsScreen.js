@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   },
   activeCard: {
     borderWidth: 2,
-    borderColor: "#4CAF50",
+    borderColor: "#FF6B35", // Orange
   },
   bookingHeader: {
     flexDirection: "row",
@@ -213,10 +213,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#E0E0E0",
   },
   activeBadge: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#FF6B35", // Orange
   },
   completedBadge: {
-    backgroundColor: "#9E9E9E",
+    backgroundColor: "#666", // Grey
   },
   statusText: {
     color: "#fff",
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     color: "#1a1a1a",
   },
   priceValue: {
-    color: "#007AFF",
+    color: "#FF6B35", // Orange
     fontSize: 16,
   },
   actionButtons: {
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
   },
   qrButton: {
     flex: 1,
-    backgroundColor: "#007AFF",
+    backgroundColor: "#1a1a1a", // Black
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
@@ -262,13 +262,13 @@ const styles = StyleSheet.create({
   },
   extendButton: {
     flex: 1,
-    backgroundColor: "#E3F2FD",
+    backgroundColor: "#FFF4ED", // Light orange
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
   },
   extendButtonText: {
-    color: "#007AFF",
+    color: "#FF6B35", // Orange
     fontSize: 14,
     fontWeight: "600",
   },
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   findParkingButton: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#FF6B35", // Orange
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,

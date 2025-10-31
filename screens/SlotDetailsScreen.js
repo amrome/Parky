@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SlotIndicator from "../components/SlotIndicator";
@@ -93,11 +94,23 @@ const SlotDetailsScreen = ({ route, navigation }) => {
           </View>
         </View>
 
-        {/* Map Placeholder */}
-        <View style={styles.mapPlaceholder}>
-          <Text style={styles.mapText}>🗺️ Location Map</Text>
+        {/* Map with Slot Location */}
+        <View style={styles.mapContainer}>
+          <Text style={styles.cardTitle}>� Slot Location</Text>
+          <Image
+            source={
+              slot.zone === "left-wing"
+                ? require("../assets/images/LeftSide.png")
+                : require("../assets/images/RightSide.png")
+            }
+            style={styles.mapImage}
+            resizeMode="contain"
+          />
           <Text style={styles.mapSubtext}>
-            Exact slot location on campus map
+            {slot.building} Building -{" "}
+            {slot.zone === "left-wing"
+              ? "Left Wing (Tuwaiq)"
+              : "Right Wing (DEF)"}
           </Text>
         </View>
 
@@ -148,7 +161,7 @@ const styles = StyleSheet.create({
     color: "#1a1a1a",
   },
   statusBadge: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#FF6B35", // Orange
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
@@ -194,7 +207,7 @@ const styles = StyleSheet.create({
     color: "#1a1a1a",
   },
   priceText: {
-    color: "#007AFF",
+    color: "#FF6B35", // Orange
     fontSize: 18,
   },
   separator: {
@@ -229,33 +242,38 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#666",
   },
-  mapPlaceholder: {
-    backgroundColor: "#E3F2FD",
+  mapContainer: {
+    backgroundColor: "#fff",
     borderRadius: 16,
-    padding: 40,
-    alignItems: "center",
+    padding: 16,
     marginBottom: 24,
-    borderWidth: 2,
-    borderColor: "#007AFF",
-    borderStyle: "dashed",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
-  mapText: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#007AFF",
-    marginBottom: 8,
+  mapImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 12,
+    marginVertical: 12,
   },
   mapSubtext: {
     fontSize: 14,
     color: "#666",
     textAlign: "center",
+    marginTop: 8,
   },
   reserveButton: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#FF6B35", // Orange
     padding: 18,
     borderRadius: 12,
     alignItems: "center",
-    shadowColor: "#007AFF",
+    shadowColor: "#FF6B35", // Orange shadow
     shadowOffset: {
       width: 0,
       height: 4,
@@ -270,15 +288,15 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   occupiedNotice: {
-    backgroundColor: "#FFEBEE",
+    backgroundColor: "#2a2a2a", // Dark grey
     padding: 18,
     borderRadius: 12,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#F44336",
+    borderColor: "#666", // Medium grey
   },
   occupiedText: {
-    color: "#F44336",
+    color: "#999", // Light grey
     fontSize: 16,
     fontWeight: "600",
   },

@@ -3,33 +3,23 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
-  TextInput,
   Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import ParkingSlot from "../components/ParkingSlot";
-import {
-  parkingSlots,
-  getAvailabilityStats,
-  parkingZones,
-} from "../utils/parkingData";
+import InteractiveMap from "../components/InteractiveMap";
+import { parkingSlots, getAvailabilityStats } from "../utils/parkingData";
 
 const { width } = Dimensions.get("window");
 
 const HomeScreen = ({ navigation }) => {
   const [selectedZone, setSelectedZone] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
 
   const stats = getAvailabilityStats();
 
   const filteredSlots = parkingSlots.filter((slot) => {
     const matchesZone = selectedZone === "all" || slot.zone === selectedZone;
-    const matchesSearch =
-      slot.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      slot.building.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesZone && matchesSearch;
+    return matchesZone;
   });
 
   const handleSlotPress = (slot) => {
@@ -40,40 +30,28 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
+      {/* Compact Header with Stats */}
       <View style={styles.header}>
-        <Text style={styles.title}>Parky</Text>
-        <Text style={styles.subtitle}>Alyamamah University Parking</Text>
+        <View style={styles.headerTop}>
+          <Text style={styles.title}>Parky</Text>
+          <View style={styles.quickStats}>
+            <View style={styles.quickStat}>
+              <View
+                style={[styles.statusDot, { backgroundColor: "#4CAF50" }]}
+              />
+              <Text style={styles.quickStatText}>{stats.available}</Text>
+            </View>
+            <View style={styles.quickStat}>
+              <View
+                style={[styles.statusDot, { backgroundColor: "#F44336" }]}
+              />
+              <Text style={styles.quickStatText}>{stats.occupied}</Text>
+            </View>
+          </View>
+        </View>
       </View>
 
-      {/* Stats Cards */}
-      <View style={styles.statsContainer}>
-        <View style={[styles.statCard, { backgroundColor: "#E8F5E9" }]}>
-          <Text style={styles.statNumber}>{stats.available}</Text>
-          <Text style={styles.statLabel}>Available</Text>
-        </View>
-        <View style={[styles.statCard, { backgroundColor: "#FFEBEE" }]}>
-          <Text style={styles.statNumber}>{stats.occupied}</Text>
-          <Text style={styles.statLabel}>Occupied</Text>
-        </View>
-        <View style={[styles.statCard, { backgroundColor: "#E3F2FD" }]}>
-          <Text style={styles.statNumber}>{stats.availabilityPercentage}%</Text>
-          <Text style={styles.statLabel}>Available</Text>
-        </View>
-      </View>
-
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search by slot number or building..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholderTextColor="#999"
-        />
-      </View>
-
-      {/* Zone Filter */}
+      {/* Zone Filter - Compact */}
       <View style={styles.filterContainer}>
         <TouchableOpacity
           style={[
@@ -88,7 +66,7 @@ const HomeScreen = ({ navigation }) => {
               selectedZone === "all" && styles.filterTextActive,
             ]}
           >
-            All Zones
+            All
           </Text>
         </TouchableOpacity>
 
@@ -105,7 +83,7 @@ const HomeScreen = ({ navigation }) => {
               selectedZone === "left-wing" && styles.filterTextActive,
             ]}
           >
-            Left Wing
+            Left
           </Text>
         </TouchableOpacity>
 
@@ -122,47 +100,19 @@ const HomeScreen = ({ navigation }) => {
               selectedZone === "right-wing" && styles.filterTextActive,
             ]}
           >
-            Right Wing
+            Right
           </Text>
         </TouchableOpacity>
       </View>
 
-      {/* Parking Map - Slots Grid */}
-      <ScrollView
-        style={styles.mapContainer}
-        contentContainerStyle={styles.mapContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={styles.sectionTitle}>
-          {selectedZone === "all"
-            ? "All Parking Slots"
-            : selectedZone === "left-wing"
-            ? "Left Wing - Tuwaiq Building"
-            : "Right Wing - DEF Building"}
-        </Text>
-
-        <View style={styles.slotsGrid}>
-          {filteredSlots.map((slot) => (
-            <ParkingSlot key={slot.id} slot={slot} onPress={handleSlotPress} />
-          ))}
-        </View>
-
-        {filteredSlots.length === 0 && (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>No parking slots found</Text>
-          </View>
-        )}
-
-        {/* Map Placeholder - For future implementation */}
-        <View style={styles.mapPlaceholder}>
-          <Text style={styles.mapPlaceholderText}>
-            📍 Interactive Campus Map
-          </Text>
-          <Text style={styles.mapPlaceholderSubtext}>
-            Upload campus map images to assets/images/
-          </Text>
-        </View>
-      </ScrollView>
+      {/* Interactive Map with Zoom and Slot Overlays - Full Screen */}
+      <View style={styles.mapWrapper}>
+        <InteractiveMap
+          zone={selectedZone}
+          slots={filteredSlots}
+          onSlotPress={handleSlotPress}
+        />
+      </View>
     </SafeAreaView>
   );
 };
@@ -173,125 +123,68 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F5F5",
   },
   header: {
-    padding: 20,
-    backgroundColor: "#007AFF",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: "#1a1a1a", // Black
   },
-  title: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: "#fff",
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#E3F2FD",
-  },
-  statsContainer: {
+  headerTop: {
     flexDirection: "row",
-    padding: 16,
     justifyContent: "space-between",
-  },
-  statCard: {
-    flex: 1,
-    padding: 16,
-    margin: 4,
-    borderRadius: 12,
     alignItems: "center",
   },
-  statNumber: {
-    fontSize: 28,
+  title: {
+    fontSize: 24,
     fontWeight: "700",
-    color: "#1a1a1a",
-    marginBottom: 4,
+    color: "#FF6B35", // Orange
   },
-  statLabel: {
-    fontSize: 12,
-    color: "#666",
+  quickStats: {
+    flexDirection: "row",
+    gap: 16,
   },
-  searchContainer: {
-    paddingHorizontal: 16,
-    marginBottom: 12,
+  quickStat: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
   },
-  searchInput: {
-    backgroundColor: "#fff",
-    padding: 12,
-    borderRadius: 12,
+  statusDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  quickStatText: {
     fontSize: 16,
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
+    fontWeight: "600",
+    color: "#fff",
   },
   filterContainer: {
     flexDirection: "row",
-    paddingHorizontal: 16,
-    marginBottom: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: "#2a2a2a", // Dark grey
+    gap: 8,
   },
   filterButton: {
     flex: 1,
-    padding: 10,
-    margin: 4,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderRadius: 8,
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
+    backgroundColor: "#3a3a3a", // Medium grey
     alignItems: "center",
   },
   filterButtonActive: {
-    backgroundColor: "#007AFF",
-    borderColor: "#007AFF",
+    backgroundColor: "#FF6B35", // Orange
   },
   filterText: {
-    fontSize: 12,
-    color: "#666",
+    fontSize: 14,
+    color: "#999",
     fontWeight: "600",
   },
   filterTextActive: {
     color: "#fff",
   },
-  mapContainer: {
+  mapWrapper: {
     flex: 1,
-  },
-  mapContent: {
-    padding: 16,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#1a1a1a",
-    marginBottom: 16,
-  },
-  slotsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  emptyState: {
-    padding: 40,
-    alignItems: "center",
-  },
-  emptyText: {
-    fontSize: 16,
-    color: "#999",
-  },
-  mapPlaceholder: {
-    marginTop: 24,
-    padding: 40,
-    backgroundColor: "#E3F2FD",
-    borderRadius: 12,
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#007AFF",
-    borderStyle: "dashed",
-  },
-  mapPlaceholderText: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#007AFF",
-    marginBottom: 8,
-  },
-  mapPlaceholderSubtext: {
-    fontSize: 12,
-    color: "#666",
-    textAlign: "center",
+    backgroundColor: "#fff",
   },
 });
 

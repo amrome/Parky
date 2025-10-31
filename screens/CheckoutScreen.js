@@ -250,8 +250,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   durationButtonActive: {
-    backgroundColor: "#E3F2FD",
-    borderColor: "#007AFF",
+    backgroundColor: "#FFF4ED", // Light orange
+    borderColor: "#FF6B35", // Orange
   },
   durationText: {
     fontSize: 16,
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   durationTextActive: {
-    color: "#007AFF",
+    color: "#FF6B35", // Orange
   },
   paymentOption: {
     flexDirection: "row",
@@ -273,8 +273,8 @@ const styles = StyleSheet.create({
     borderColor: "#E0E0E0",
   },
   paymentOptionActive: {
-    backgroundColor: "#E3F2FD",
-    borderColor: "#007AFF",
+    backgroundColor: "#FFF4ED", // Light orange
+    borderColor: "#FF6B35", // Orange
   },
   paymentLeft: {
     flexDirection: "row",
@@ -299,13 +299,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   radioActive: {
-    borderColor: "#007AFF",
+    borderColor: "#FF6B35", // Orange
   },
   radioInner: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "#007AFF",
+    backgroundColor: "#FF6B35", // Orange
   },
   priceCard: {
     backgroundColor: "#fff",
@@ -348,15 +348,15 @@ const styles = StyleSheet.create({
   totalValue: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#007AFF",
+    color: "#FF6B35", // Orange
   },
   confirmButton: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#FF6B35", // Orange
     padding: 18,
     borderRadius: 12,
     alignItems: "center",
     marginBottom: 16,
-    shadowColor: "#007AFF",
+    shadowColor: "#FF6B35", // Orange shadow
     shadowOffset: {
       width: 0,
       height: 4,

@@ -10,8 +10,8 @@ const ParkingSlot = ({ slot, onPress }) => {
       style={[
         styles.slotContainer,
         {
-          backgroundColor: isAvailable ? "#E8F5E9" : "#FFEBEE",
-          borderColor: isAvailable ? "#4CAF50" : "#F44336",
+          backgroundColor: isAvailable ? "#E8F5E9" : "#FFEBEE", // Green bg for available, red for occupied
+          borderColor: isAvailable ? "#4CAF50" : "#F44336", // Green border for available, red for occupied
         },
       ]}
       onPress={() => onPress(slot)}
@@ -69,11 +69,11 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#007AFF",
+    color: "#FF6B35", // Orange
   },
   occupiedBadge: {
     marginTop: 8,
-    backgroundColor: "#F44336",
+    backgroundColor: "#F44336", // Red
     paddingVertical: 4,
     paddingHorizontal: 8,
     borderRadius: 4,
