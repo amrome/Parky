@@ -4,26 +4,24 @@
     "slug": "parky",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./public/react.svg",
+    "icon": "./assets/icon.png",
     "scheme": "parky",
-    "platforms": ["ios", "android", "web"],
+    "platforms": ["ios", "android"],
     "splash": {
-      "image": "./public/react.svg",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.parky.app"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./public/react.svg",
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
-    },
-    "web": {
-      "bundler": "metro",
-      "favicon": "./public/react.svg"
+      },
+      "package": "com.parky.app"
     }
   }
 }

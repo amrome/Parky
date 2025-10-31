@@ -1,49 +1,28 @@
-import { useState } from 'react';
+import React, { useMemo } from 'react';
+import { SafeAreaView, View, Platform } from 'react-native';
+import Constants from 'expo-constants';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Pressable } from 'react-native';
+import { WebView } from 'react-native-webview';
 
 export default function App() {
-  const [count, setCount] = useState(0);
+  const defaultDevUrl = 'http://localhost:5173';
+  const url = useMemo(() => {
+    const envUrl = Constants?.expoConfig?.extra?.WEB_APP_URL || process.env.WEB_APP_URL;
+    return envUrl || defaultDevUrl;
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Parky</Text>
-      <Pressable style={styles.button} onPress={() => setCount((c) => c + 1)}>
-        <Text style={styles.buttonText}>count is {count}</Text>
-      </Pressable>
-      <Text style={styles.hint}>Edit App.js and save to test fast refresh</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
+      <View
+        style={{
+          height: Platform.OS === 'android' ? (Constants.statusBarHeight || 0) : 0,
+          backgroundColor: '#ffffff',
+        }}
+      />
+      <WebView source={{ uri: url }} />
       <StatusBar style="auto" />
-    </View>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-    padding: 24,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '700',
-    marginBottom: 24,
-  },
-  button: {
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: '#1a1a1a',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  hint: {
-    marginTop: 16,
-    color: '#666',
-  },
-});
 
 
