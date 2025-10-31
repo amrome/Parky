@@ -1,28 +1,68 @@
-import React, { useMemo } from 'react';
-import { SafeAreaView, View, Platform } from 'react-native';
-import Constants from 'expo-constants';
-import { StatusBar } from 'expo-status-bar';
-import { WebView } from 'react-native-webview';
+import { useState } from "react";
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet, Text, View, Pressable } from "react-native";
 
 export default function App() {
-  const defaultDevUrl = 'http://localhost:5173';
-  const url = useMemo(() => {
-    const envUrl = Constants?.expoConfig?.extra?.WEB_APP_URL || process.env.WEB_APP_URL;
-    return envUrl || defaultDevUrl;
-  }, []);
+  const [count, setCount] = useState(0);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
-      <View
-        style={{
-          height: Platform.OS === 'android' ? (Constants.statusBarHeight || 0) : 0,
-          backgroundColor: '#ffffff',
-        }}
-      />
-      <WebView source={{ uri: url }} />
+    <View style={styles.container}>
+      <Text style={styles.title}>Parky</Text>
+      <Text style={styles.subtitle}>Parking Management App</Text>
+
+      <Pressable style={styles.button} onPress={() => setCount((c) => c + 1)}>
+        <Text style={styles.buttonText}>Tap count: {count}</Text>
+      </Pressable>
+
+      <Text style={styles.hint}>Edit App.js and save to see changes</Text>
       <StatusBar style="auto" />
-    </SafeAreaView>
+    </View>
   );
 }
 
-
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#f5f5f5",
+    padding: 24,
+  },
+  title: {
+    fontSize: 48,
+    fontWeight: "700",
+    marginBottom: 8,
+    color: "#1a1a1a",
+  },
+  subtitle: {
+    fontSize: 18,
+    fontWeight: "400",
+    marginBottom: 40,
+    color: "#666",
+  },
+  button: {
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    backgroundColor: "#007AFF",
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  hint: {
+    marginTop: 20,
+    color: "#999",
+    fontSize: 14,
+  },
+});
