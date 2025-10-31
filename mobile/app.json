@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "Parky Mobile",
+    "slug": "parky-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "../public/react.svg",
+    "scheme": "parky",
+    "platforms": ["ios", "android", "web"],
+    "splash": {
+      "image": "../public/react.svg",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "../public/react.svg",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "favicon": "../public/react.svg"
+    },
+    "extra": {
+      "WEB_APP_URL": "http://localhost:5173"
+    }
+  }
+}
+
+

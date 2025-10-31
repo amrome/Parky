@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "Parky",
+    "slug": "parky",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./public/react.svg",
+    "scheme": "parky",
+    "platforms": ["ios", "android", "web"],
+    "splash": {
+      "image": "./public/react.svg",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./public/react.svg",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "favicon": "./public/react.svg"
+    }
+  }
+}
+
+
