@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   View,
   Text,
@@ -6,10 +6,15 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useBooking } from "../context/BookingContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ProfileScreen = ({ navigation }) => {
+  const { bookings } = useBooking();
+
   // Mock user data - in production, this would come from authentication/state management
   const user = {
     name: "Student Name",
@@ -17,6 +22,55 @@ const ProfileScreen = ({ navigation }) => {
     studentId: "202400001",
     department: "Computer Science",
     balance: 50,
+  };
+
+  // Calculate statistics from real bookings
+  const stats = useMemo(() => {
+    const totalBookings = bookings.length;
+    const totalHours = bookings.reduce(
+      (sum, booking) => sum + booking.duration,
+      0
+    );
+    const totalSpent = bookings.reduce(
+      (sum, booking) => sum + booking.totalCost,
+      0
+    );
+
+    return {
+      totalBookings,
+      totalHours,
+      totalSpent,
+    };
+  }, [bookings]);
+
+  // Reset all data function
+  const handleResetData = () => {
+    Alert.alert(
+      "Reset All Data",
+      "Are you sure you want to delete all bookings? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Reset",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem("bookings");
+              Alert.alert(
+                "Success",
+                "All data has been reset. Please restart the app to see changes."
+              );
+            } catch (error) {
+              Alert.alert("Error", "Failed to reset data. Please try again.");
+              console.error("Error resetting data:", error);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const menuItems = [
@@ -28,7 +82,7 @@ const ProfileScreen = ({ navigation }) => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["bottom"]}>
       <ScrollView contentContainerStyle={styles.content}>
         {/* Profile Header */}
         <View style={styles.profileHeader}>
@@ -63,22 +117,22 @@ const ProfileScreen = ({ navigation }) => {
         {/* Stats Card */}
         <View style={styles.statsCard}>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>12</Text>
+            <Text style={styles.statNumber}>{stats.totalBookings}</Text>
             <Text style={styles.statLabel}>Total Bookings</Text>
           </View>
 
           <View style={styles.statDivider} />
 
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>24h</Text>
+            <Text style={styles.statNumber}>{stats.totalHours}h</Text>
             <Text style={styles.statLabel}>Total Time</Text>
           </View>
 
           <View style={styles.statDivider} />
 
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>120</Text>
-            <Text style={styles.statLabel}>Total Spent</Text>
+            <Text style={styles.statNumber}>{stats.totalSpent}</Text>
+            <Text style={styles.statLabel}>Total Spent (SAR)</Text>
           </View>
         </View>
 
@@ -107,6 +161,11 @@ const ProfileScreen = ({ navigation }) => {
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
 
+        {/* Reset Data Button */}
+        <TouchableOpacity style={styles.resetButton} onPress={handleResetData}>
+          <Text style={styles.resetText}>🗑️ Reset All Data</Text>
+        </TouchableOpacity>
+
         {/* App Version */}
         <Text style={styles.versionText}>Version 1.0.0</Text>
       </ScrollView>
@@ -121,6 +180,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
+    paddingBottom: 100, // Extra padding to clear the navbar
   },
   profileHeader: {
     alignItems: "center",
@@ -275,6 +335,20 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     color: "#F44336",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  resetButton: {
+    backgroundColor: "#fff",
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#FF9800",
+  },
+  resetText: {
+    color: "#FF9800",
     fontSize: 16,
     fontWeight: "600",
   },

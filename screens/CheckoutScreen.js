@@ -8,9 +8,11 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useBooking } from "../context/BookingContext";
 
 const CheckoutScreen = ({ route, navigation }) => {
-  const { slot } = route.params;
+  const { slot, scheduledStartTime } = route.params;
+  const { createBooking, checkTimeConflict } = useBooking();
   const [duration, setDuration] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("credit-card");
 
@@ -30,19 +32,58 @@ const CheckoutScreen = ({ route, navigation }) => {
   const totalPrice = slot.price * duration;
 
   const handleConfirmPayment = () => {
+    // Use scheduled time or current time
+    const startTime = scheduledStartTime || new Date().toISOString();
+    const endTime = new Date(
+      new Date(startTime).getTime() + duration * 60 * 60 * 1000
+    ).toISOString();
+
+    // Check for time conflicts before creating the booking
+    const hasConflict = checkTimeConflict(slot.id, startTime, endTime);
+
+    if (hasConflict) {
+      Alert.alert(
+        "Time Conflict ⚠️",
+        "This time slot is already reserved. Please select a different time slot.",
+        [{ text: "OK" }]
+      );
+      return;
+    }
+
+    // Create the booking with all details
+    const bookingData = {
+      slotId: slot.id,
+      slotZone: slot.zone,
+      building: slot.building,
+      duration: duration,
+      hourlyRate: slot.price,
+      totalCost: totalPrice,
+      paymentMethod: paymentMethod,
+      startTime: startTime,
+      endTime: endTime,
+    };
+
+    const newBooking = createBooking(bookingData);
+
     Alert.alert(
       "Payment Successful! 🎉",
-      `You have reserved slot ${slot.id} for ${duration} hour(s).\nTotal: ${totalPrice} SAR`,
+      `You have reserved slot ${slot.id} for ${duration} hour(s).\nTotal: ${totalPrice} SAR\nBooking Number: ${newBooking.bookingNumber}`,
       [
         {
-          text: "View Booking",
-          onPress: () => navigation.navigate("MyBookings"),
+          text: "Back to Home",
+          onPress: () => {
+            navigation.navigate("Home");
+          },
+          style: "default",
         },
         {
-          text: "Back to Home",
-          onPress: () => navigation.navigate("Home"),
+          text: "View Booking",
+          onPress: () => {
+            navigation.navigate("MyBookings");
+          },
         },
-      ]
+      ],
+      { cancelable: false, onDismiss: () => navigation.navigate("Home") }
     );
   };
 

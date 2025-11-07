@@ -1,58 +1,132 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Alert,
+  RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useBooking } from "../context/BookingContext";
+import { useFocusEffect } from "@react-navigation/native";
 
 const MyBookingsScreen = ({ navigation }) => {
-  // Mock booking data - in production, this would come from your backend/state management
-  const activeBookings = [
-    {
-      id: "BK-001",
-      slotId: "RW-02",
-      building: "DEF",
-      startTime: "08:00 AM",
-      endTime: "10:00 AM",
-      duration: 2,
-      price: 10,
-      status: "active",
-      date: "Today",
-    },
-  ];
+  const {
+    bookings,
+    loading,
+    cancelBooking,
+    extendBooking,
+    getActiveBookings,
+    getPastBookings,
+  } = useBooking();
+  const [refreshing, setRefreshing] = useState(false);
 
-  const upcomingBookings = [];
+  // Refresh bookings when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      // Bookings are already loaded from context
+    }, [])
+  );
 
-  const pastBookings = [
-    {
-      id: "BK-002",
-      slotId: "LW-05",
-      building: "Tuwaiq",
-      startTime: "09:00 AM",
-      endTime: "11:00 AM",
-      duration: 2,
-      price: 10,
-      status: "completed",
-      date: "Oct 30, 2025",
-    },
-  ];
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    // Simulate refresh delay
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  }, []);
+
+  const activeBookings = getActiveBookings();
+  const pastBookings = getPastBookings();
+
+  const formatTime = (isoString) => {
+    const date = new Date(isoString);
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
+  const formatDate = (isoString) => {
+    const date = new Date(isoString);
+    const today = new Date();
+    const diffTime = Math.abs(today - date);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const handleCancelBooking = (booking) => {
+    Alert.alert(
+      "Cancel Booking",
+      `Are you sure you want to cancel booking ${booking.bookingNumber}?`,
+      [
+        { text: "No", style: "cancel" },
+        {
+          text: "Yes, Cancel",
+          style: "destructive",
+          onPress: () => {
+            cancelBooking(booking.id);
+            Alert.alert("Success", "Booking cancelled successfully");
+          },
+        },
+      ]
+    );
+  };
+
+  const handleExtendBooking = (booking) => {
+    Alert.alert("Extend Booking", "How many additional hours?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "1 Hour",
+        onPress: () => {
+          extendBooking(booking.id, 1);
+          Alert.alert(
+            "Success",
+            `Booking extended by 1 hour. Additional cost: ${booking.hourlyRate} SAR`
+          );
+        },
+      },
+      {
+        text: "2 Hours",
+        onPress: () => {
+          extendBooking(booking.id, 2);
+          Alert.alert(
+            "Success",
+            `Booking extended by 2 hours. Additional cost: ${
+              booking.hourlyRate * 2
+            } SAR`
+          );
+        },
+      },
+    ]);
+  };
 
   const BookingCard = ({ booking }) => {
     const isActive = booking.status === "active";
-    const isCompleted = booking.status === "completed";
+    const isCompleted =
+      booking.status === "completed" || booking.status === "cancelled";
+    const isCancelled = booking.status === "cancelled";
 
     return (
       <View style={[styles.bookingCard, isActive && styles.activeCard]}>
         <View style={styles.bookingHeader}>
-          <Text style={styles.bookingId}>{booking.id}</Text>
+          <Text style={styles.bookingId}>{booking.bookingNumber}</Text>
           <View
             style={[
               styles.statusBadge,
               isActive && styles.activeBadge,
-              isCompleted && styles.completedBadge,
+              isCompleted && !isCancelled && styles.completedBadge,
+              isCancelled && styles.cancelledBadge,
             ]}
           >
             <Text style={styles.statusText}>
@@ -74,41 +148,75 @@ const MyBookingsScreen = ({ navigation }) => {
 
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>📅 Date:</Text>
-            <Text style={styles.detailValue}>{booking.date}</Text>
+            <Text style={styles.detailValue}>
+              {formatDate(booking.startTime)}
+            </Text>
           </View>
 
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>⏰ Time:</Text>
             <Text style={styles.detailValue}>
-              {booking.startTime} - {booking.endTime}
+              {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
+            </Text>
+          </View>
+
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>⏱️ Duration:</Text>
+            <Text style={styles.detailValue}>
+              {booking.duration} hour{booking.duration > 1 ? "s" : ""}
             </Text>
           </View>
 
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>💰 Total:</Text>
             <Text style={[styles.detailValue, styles.priceValue]}>
-              {booking.price} SAR
+              {booking.totalCost} SAR
             </Text>
           </View>
         </View>
 
         {isActive && (
           <View style={styles.actionButtons}>
-            <TouchableOpacity style={styles.qrButton}>
+            <TouchableOpacity
+              style={styles.qrButton}
+              onPress={() =>
+                Alert.alert(
+                  "QR Code",
+                  `Show QR code for ${booking.bookingNumber}`
+                )
+              }
+            >
               <Text style={styles.qrButtonText}>Show QR Code</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.extendButton}>
+            <TouchableOpacity
+              style={styles.extendButton}
+              onPress={() => handleExtendBooking(booking)}
+            >
               <Text style={styles.extendButtonText}>Extend Time</Text>
             </TouchableOpacity>
           </View>
+        )}
+
+        {isActive && (
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={() => handleCancelBooking(booking)}
+          >
+            <Text style={styles.cancelButtonText}>Cancel Booking</Text>
+          </TouchableOpacity>
         )}
       </View>
     );
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+    <SafeAreaView style={styles.container} edges={["bottom"]}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <Text style={styles.title}>My Bookings</Text>
 
         {/* Active Bookings */}
@@ -132,23 +240,15 @@ const MyBookingsScreen = ({ navigation }) => {
           )}
         </View>
 
-        {/* Upcoming Bookings */}
-        {upcomingBookings.length > 0 && (
+        {/* Past Bookings */}
+        {pastBookings.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Upcoming</Text>
-            {upcomingBookings.map((booking) => (
+            <Text style={styles.sectionTitle}>History</Text>
+            {pastBookings.map((booking) => (
               <BookingCard key={booking.id} booking={booking} />
             ))}
           </View>
         )}
-
-        {/* Past Bookings */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>History</Text>
-          {pastBookings.map((booking) => (
-            <BookingCard key={booking.id} booking={booking} />
-          ))}
-        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -161,6 +261,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
+    paddingBottom: 100, // Extra padding to clear the navbar
   },
   title: {
     fontSize: 32,
@@ -218,6 +319,9 @@ const styles = StyleSheet.create({
   completedBadge: {
     backgroundColor: "#666", // Grey
   },
+  cancelledBadge: {
+    backgroundColor: "#F44336", // Red
+  },
   statusText: {
     color: "#fff",
     fontSize: 12,
@@ -269,6 +373,20 @@ const styles = StyleSheet.create({
   },
   extendButtonText: {
     color: "#FF6B35", // Orange
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  cancelButton: {
+    marginTop: 8,
+    backgroundColor: "#FFEBEE",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#F44336",
+  },
+  cancelButtonText: {
+    color: "#F44336",
     fontSize: 14,
     fontWeight: "600",
   },

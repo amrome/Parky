@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Image,
@@ -17,10 +17,12 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import { useBooking } from "../context/BookingContext";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 const InteractiveMap = ({ zone, slots, onSlotPress }) => {
+  const { getSlotBooking, isSlotFullyBooked, bookings } = useBooking();
   const scale = useSharedValue(1);
   const savedScale = useSharedValue(1);
   const translateX = useSharedValue(0);
@@ -30,14 +32,8 @@ const InteractiveMap = ({ zone, slots, onSlotPress }) => {
 
   // Get the correct image source based on zone
   const getMapSource = () => {
-    switch (zone) {
-      case "left-wing":
-        return require("../assets/images/LeftSide.png");
-      case "right-wing":
-        return require("../assets/images/RightSide.png");
-      default:
-        return require("../assets/images/MainPhoto.png");
-    }
+    // Use the new parking map for all zones
+    return require("../assets/images/Screenshot 2025-11-07 223017.png");
   };
 
   // Pinch gesture for zooming
@@ -76,66 +72,70 @@ const InteractiveMap = ({ zone, slots, onSlotPress }) => {
   }));
 
   // Define slot positions on the map (percentage-based coordinates)
-  // You'll need to adjust these based on your actual map layout
+  // Based on the actual parking map layout
   const getSlotPositions = () => {
     const positions = {};
 
-    if (zone === "left-wing") {
-      // Left wing slots - Tuwaiq Building (20 slots)
-      slots
-        .filter((s) => s.zone === "left-wing")
-        .forEach((slot, index) => {
-          const row = Math.floor(index / 5);
-          const col = index % 5;
-          positions[slot.id] = {
-            left: 20 + col * 15, // Percentage from left
-            top: 30 + row * 15, // Percentage from top
-          };
-        });
-    } else if (zone === "right-wing") {
-      // Right wing slots - DEF Building (25 slots)
-      slots
-        .filter((s) => s.zone === "right-wing")
-        .forEach((slot, index) => {
-          const row = Math.floor(index / 5);
-          const col = index % 5;
-          positions[slot.id] = {
-            left: 20 + col * 15,
-            top: 25 + row * 12,
-          };
-        });
-    } else {
-      // Main view - show both sides
-      // Left side
-      slots
-        .filter((s) => s.zone === "left-wing")
-        .slice(0, 10)
-        .forEach((slot, index) => {
-          const row = Math.floor(index / 5);
-          const col = index % 5;
-          positions[slot.id] = {
-            left: 10 + col * 7,
-            top: 40 + row * 15,
-          };
-        });
-      // Right side
-      slots
-        .filter((s) => s.zone === "right-wing")
-        .slice(0, 10)
-        .forEach((slot, index) => {
-          const row = Math.floor(index / 5);
-          const col = index % 5;
-          positions[slot.id] = {
-            left: 55 + col * 7,
-            top: 40 + row * 15,
-          };
-        });
-    }
+    // Get all slots for the selected zone
+    const zoneSlots = slots.filter((s) =>
+      zone === "all" ? true : s.zone === zone
+    );
+
+    zoneSlots.forEach((slot) => {
+      const slotNum = parseInt(slot.id.split("-")[1]);
+
+      if (slot.zone === "left-wing") {
+        // Left-wing: 2 rows of 10 slots each (20 total)
+        const row = Math.floor((slotNum - 1) / 10); // 0 for first 10, 1 for next 10
+        const col = (slotNum - 1) % 10; // Position within the row
+        positions[slot.id] = {
+          left: 5 + col * 9, // Spread horizontally
+          top: 25 + row * 8, // Two rows closer: 25% and 33% (8% gap)
+        };
+      } else if (slot.zone === "right-wing") {
+        // Right-wing: 2 rows (13 slots first row, 12 slots second row)
+        const row = Math.floor((slotNum - 1) / 13); // 0 for first 13, 1 for next 12
+        const col = (slotNum - 1) % 13; // Position within the row
+        positions[slot.id] = {
+          left: 5 + col * 7, // Spread horizontally
+          top: 58 + row * 8, // Two rows closer: 58% and 66% (8% gap)
+        };
+      }
+    });
 
     return positions;
   };
 
   const slotPositions = getSlotPositions();
+
+  // Calculate slot colors - memoized to update when bookings change
+  const slotColors = useMemo(() => {
+    console.log(
+      "[InteractiveMap] Recalculating slot colors, bookings count:",
+      bookings.length
+    );
+    const colors = {};
+    slots.forEach((slot) => {
+      const currentBooking = getSlotBooking(slot.id);
+      const fullyBooked = isSlotFullyBooked(slot.id);
+
+      // Determine color based on booking status
+      // Green: Available now
+      // Orange: Currently reserved but available for future
+      // Red: Fully occupied (all time slots booked for next 24 hours)
+      if (fullyBooked) {
+        colors[slot.id] = "#F44336"; // Red
+        console.log(`[InteractiveMap] ${slot.id} = RED (fully booked)`);
+      } else if (currentBooking) {
+        colors[slot.id] = "#FF9800"; // Orange
+        console.log(`[InteractiveMap] ${slot.id} = ORANGE (has booking)`);
+      } else {
+        colors[slot.id] = "#4CAF50"; // Green
+        console.log(`[InteractiveMap] ${slot.id} = GREEN (available)`);
+      }
+    });
+    return colors;
+  }, [bookings, slots]);
 
   return (
     <GestureHandlerRootView style={styles.container}>
@@ -153,7 +153,7 @@ const InteractiveMap = ({ zone, slots, onSlotPress }) => {
               const slot = slots.find((s) => s.id === slotId);
               if (!slot) return null;
 
-              const isAvailable = slot.status === "available";
+              const indicatorColor = slotColors[slotId] || "#4CAF50";
 
               return (
                 <TouchableOpacity
@@ -163,7 +163,7 @@ const InteractiveMap = ({ zone, slots, onSlotPress }) => {
                     {
                       left: `${position.left}%`,
                       top: `${position.top}%`,
-                      backgroundColor: isAvailable ? "#4CAF50" : "#F44336",
+                      backgroundColor: indicatorColor,
                     },
                   ]}
                   onPress={() => onSlotPress(slot)}
@@ -205,8 +205,8 @@ const styles = StyleSheet.create({
   },
   slotIndicator: {
     position: "absolute",
-    width: 40,
-    height: 40,
+    width: 34,
+    height: 34,
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",

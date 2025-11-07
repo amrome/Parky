@@ -8,12 +8,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import InteractiveMap from "../components/InteractiveMap";
-import { parkingSlots, getAvailabilityStats } from "../utils/parkingData";
+import { useBooking } from "../context/BookingContext";
 
 const { width } = Dimensions.get("window");
 
 const HomeScreen = ({ navigation }) => {
   const [selectedZone, setSelectedZone] = useState("all");
+  const { parkingSlots, getAvailabilityStats, bookings } = useBooking();
 
   const stats = getAvailabilityStats();
 
@@ -23,9 +24,8 @@ const HomeScreen = ({ navigation }) => {
   });
 
   const handleSlotPress = (slot) => {
-    if (slot.status === "available") {
-      navigation.navigate("SlotDetails", { slot });
-    }
+    // Allow clicking on both available and occupied slots
+    navigation.navigate("SlotDetails", { slot });
   };
 
   return (
@@ -43,9 +43,15 @@ const HomeScreen = ({ navigation }) => {
             </View>
             <View style={styles.quickStat}>
               <View
+                style={[styles.statusDot, { backgroundColor: "#FF9800" }]}
+              />
+              <Text style={styles.quickStatText}>{stats.reserved}</Text>
+            </View>
+            <View style={styles.quickStat}>
+              <View
                 style={[styles.statusDot, { backgroundColor: "#F44336" }]}
               />
-              <Text style={styles.quickStatText}>{stats.occupied}</Text>
+              <Text style={styles.quickStatText}>{stats.occupied || 0}</Text>
             </View>
           </View>
         </View>
@@ -108,6 +114,7 @@ const HomeScreen = ({ navigation }) => {
       {/* Interactive Map with Zoom and Slot Overlays - Full Screen */}
       <View style={styles.mapWrapper}>
         <InteractiveMap
+          key={`map-${bookings.length}`}
           zone={selectedZone}
           slots={filteredSlots}
           onSlotPress={handleSlotPress}
@@ -120,7 +127,7 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#1a1a1a",
   },
   header: {
     paddingVertical: 12,

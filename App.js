@@ -2,7 +2,8 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Text } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
+import { BookingProvider } from "./context/BookingContext";
 
 // Import Screens
 import HomeScreen from "./screens/HomeScreen";
@@ -60,19 +61,32 @@ function BottomTabs() {
         tabBarActiveTintColor: "#FF6B35", // Orange
         tabBarInactiveTintColor: "#666", // Grey
         tabBarStyle: {
-          paddingBottom: 5,
-          paddingTop: 5,
-          height: 60,
+          paddingBottom: 10,
+          paddingTop: 10,
+          height: 70,
           borderTopWidth: 1,
           borderTopColor: "#2a2a2a", // Dark grey
           backgroundColor: "#1a1a1a", // Black
+          position: "absolute",
+          bottom: 10,
+          left: 10,
+          right: 10,
+          borderRadius: 15,
+          elevation: 8,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.25,
+          shadowRadius: 3.84,
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: "600",
+          marginBottom: 5,
         },
         headerStyle: {
           backgroundColor: "#1a1a1a", // Black
+          shadowColor: "transparent", // Remove shadow
+          elevation: 0, // Remove shadow on Android
         },
         headerTintColor: "#FF6B35", // Orange
         headerTitleStyle: {
@@ -110,8 +124,25 @@ function BottomTabs() {
 // Main App Component
 export default function App() {
   return (
-    <NavigationContainer>
-      <BottomTabs />
-    </NavigationContainer>
+    <BookingProvider>
+      <NavigationContainer>
+        <View style={{ flex: 1 }}>
+          <BottomTabs />
+          {/* Background fill for space below navbar */}
+          <View style={styles.navbarBackground} />
+        </View>
+      </NavigationContainer>
+    </BookingProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  navbarBackground: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 10,
+    backgroundColor: "#1a1a1a", // Same as navbar
+  },
+});
