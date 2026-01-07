@@ -7,8 +7,7 @@
     "scheme": "parky",
     "platforms": [
       "ios",
-      "android",
-      "web"
+      "android"
     ],
     "splash": {
       "resizeMode": "contain",
