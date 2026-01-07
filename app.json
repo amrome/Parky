@@ -5,7 +5,11 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "parky",
-    "platforms": ["ios", "android", "web"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "splash": {
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
@@ -19,8 +23,17 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.parky.app"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "41d67ca0-a001-4eea-bb9d-154725636789"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/41d67ca0-a001-4eea-bb9d-154725636789"
     }
   }
 }
-
-
