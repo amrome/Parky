@@ -46,9 +46,15 @@ export const BookingProvider = ({ children }) => {
 
   const loadBookings = async () => {
     try {
-      const savedBookings = await AsyncStorage.getItem("@bookings");
+      // Try new key first, fallback to old key
+      let savedBookings = await AsyncStorage.getItem("bookings");
+      if (!savedBookings) {
+        savedBookings = await AsyncStorage.getItem("@bookings");
+      }
       if (savedBookings) {
-        setBookings(JSON.parse(savedBookings));
+        const parsedBookings = JSON.parse(savedBookings);
+        console.log("[BookingContext] Loaded bookings:", parsedBookings.length);
+        setBookings(parsedBookings);
       }
     } catch (error) {
       console.error("Error loading bookings:", error);
@@ -59,7 +65,8 @@ export const BookingProvider = ({ children }) => {
 
   const saveBookings = async () => {
     try {
-      await AsyncStorage.setItem("@bookings", JSON.stringify(bookings));
+      await AsyncStorage.setItem("bookings", JSON.stringify(bookings));
+      console.log("[BookingContext] Saved bookings:", bookings.length);
     } catch (error) {
       console.error("Error saving bookings:", error);
     }

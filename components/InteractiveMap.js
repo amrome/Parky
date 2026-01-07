@@ -22,7 +22,8 @@ import { useBooking } from "../context/BookingContext";
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 const InteractiveMap = ({ zone, slots, onSlotPress }) => {
-  const { getSlotBooking, isSlotFullyBooked, bookings } = useBooking();
+  const { getSlotBooking, isSlotFullyBooked, bookings, getSlotBookings } =
+    useBooking();
   const scale = useSharedValue(1);
   const savedScale = useSharedValue(1);
   const translateX = useSharedValue(0);
@@ -115,27 +116,34 @@ const InteractiveMap = ({ zone, slots, onSlotPress }) => {
       bookings.length
     );
     const colors = {};
+
     slots.forEach((slot) => {
-      const currentBooking = getSlotBooking(slot.id);
       const fullyBooked = isSlotFullyBooked(slot.id);
+      const slotBookings = getSlotBookings(slot.id); // Get ALL active bookings for this slot
 
       // Determine color based on booking status
-      // Green: Available now
-      // Orange: Currently reserved but available for future
-      // Red: Fully occupied (all time slots booked for next 24 hours)
+      // Green: No bookings at all
+      // Orange: Has bookings but not fully booked (1-2 bookings)
+      // Red: Fully booked (3+ bookings in next 24 hours)
       if (fullyBooked) {
         colors[slot.id] = "#F44336"; // Red
-        console.log(`[InteractiveMap] ${slot.id} = RED (fully booked)`);
-      } else if (currentBooking) {
+        console.log(
+          `[InteractiveMap] ${slot.id} = RED (fully booked, ${slotBookings.length} bookings)`
+        );
+      } else if (slotBookings.length > 0) {
         colors[slot.id] = "#FF9800"; // Orange
-        console.log(`[InteractiveMap] ${slot.id} = ORANGE (has booking)`);
+        console.log(
+          `[InteractiveMap] ${slot.id} = ORANGE (has ${slotBookings.length} bookings)`
+        );
       } else {
         colors[slot.id] = "#4CAF50"; // Green
-        console.log(`[InteractiveMap] ${slot.id} = GREEN (available)`);
+        console.log(
+          `[InteractiveMap] ${slot.id} = GREEN (available, 0 bookings)`
+        );
       }
     });
     return colors;
-  }, [bookings, slots]);
+  }, [bookings, slots, getSlotBookings, isSlotFullyBooked]);
 
   return (
     <GestureHandlerRootView style={styles.container}>
